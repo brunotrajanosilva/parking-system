@@ -1,0 +1,18 @@
+<div>
+    <h1>entry</h1>
+    <form action="/entry" method="post">
+        {% csrf_token %}
+        {{entry_car}}
+        <input type="submit" value="confirm">
+    </form>
+
+    <h1>exit</h1>
+    <form action="/exit" method="post">
+        {% csrf_token %}
+        {{ticket_number}}
+        <input type="submit" value="confirm">
+    </form>
+
+    <h1>slots:</h1>
+    {% include "slots.html" %}
+</div>

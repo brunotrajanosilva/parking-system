@@ -1,0 +1,14 @@
+<div>
+    {% if ticket %}
+    <div>
+        <h1>your ticket number is: {{ticket.number}}</h1>
+        
+    </div>
+    {% endif %}
+
+    <h1>Your slot:
+    </h1>
+    {% include 'slots.html' %}
+    
+</div>
+
