@@ -1,30 +1,53 @@
 from django.db import models
+import uuid
 
 
 # Create your models here.
 
 car_choices = (
-    (1, 'SM'),
-    (2, 'MD'),
-    (3, 'LG'),
-    (4, 'XL'),
+    (0, 'SM'),
+    (1, 'MD'),
+    (2, 'LG'),
+    (3, 'XL'),
 )
+
+class ParkingArea(models.Model):
+    name = models.CharField(max_length=40)
+
+    def __str__(self):
+        return self.name
+
+
 
 class Slot(models.Model):
     size = models.IntegerField(choices=car_choices)
     status = models.BooleanField(default=False)
+    parking_area = models.ForeignKey(ParkingArea, on_delete=models.CASCADE, related_name='slots')
+
 
     def __str__(self):
         return f'id:{self.id}, size:{ self.size}, status: {self.status}'
 
 class Ticket(models.Model):
-    number = models.CharField(max_length=4)
-    car_size = models.IntegerField(choices=car_choices)
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
+    token = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    slot_size = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='slots')
     entry_time = models.DateTimeField(auto_now_add=True)
     exit_time = models.DateTimeField(null=True)
-    price= models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    total_price= models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     def __str__(self):
-        return f'number:{self.number}, car_size:{self.car_size}, entry_time:{self.entry_time}, exit_time:{self.exit_time}'
+        return f'token:{self.token}, slot_size:{self.slot_size}, entry_time:{self.entry_time}, exit_time:{self.exit_time}, total:{self.total_price}'
 
+    """ def save(self):
+        if self.exit_time == None:
+            slot_size = self.slot_size
+            slot_size.status = True
+            slot_size.save()
+
+        else:
+            slot_size = self.slot_size
+            slot_size.status = False
+            slot_size.save()
+
+        super().save()
+    """

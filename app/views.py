@@ -1,75 +1,75 @@
-from django.shortcuts import render
+from .modules.ParkingAreas import  list_parking_areas
+
+
 from django.http import HttpResponse
-from .forms import EntryCar, TicketNumber
+from django.shortcuts import render
+from .forms import EntryForm, ExitForm
 
-from .modules.parking_system import parking_system
-from django.views.decorators.csrf import csrf_exempt
-from .models import Slot
 
-# Create your views here.
 
-@csrf_exempt
-def index(request):
-    slots = Slot.objects.all()
-    
+def index(request, area):
+    parking_urls = list_parking_areas.keys()
+    parking_area = list_parking_areas[area]
+    slots_status = parking_area.get_slots()
 
-    context = {}
-    context['entry_car'] = EntryCar()
-    context['ticket_number'] = TicketNumber()
-    context['slots'] = slots
 
+    context = {
+        'entry': EntryForm(),
+        'exit': ExitForm(),
+        'urls': parking_urls,
+        'slots': slots_status
+    }
 
     return render(request, 'index.html', context)
 
 
-@csrf_exempt
-def entry(request):
-    parking = parking_system()
-    slots = Slot.objects.all().values()
+def entry(request, area):
+    parking_area = list_parking_areas[area]
+ 
+    if request.method == 'POST':
+        entry_form = EntryForm(request.POST)
 
+        message = ""
 
-    context = {
-        'slots': slots 
-    }
+        if entry_form.is_valid():
+            car_size = request.POST['car_size']
 
-    if request.method == "POST":
+            try:
+                new_ticket = parking_area.entry(car_size)
+                message = f'new ticket was created: {new_ticket.token}'
 
-        entry_car = EntryCar(request.POST)
+                return HttpResponse(content=message, status=201)
 
-        if entry_car.is_valid():
-            
-            ticket = parking.entry(request.POST['car_size'])
-
-            for slot in slots:
-                if slot['id'] == ticket.slot.id:
-                    slot['active'] = True
-            
-            context = {
-                'ticket': ticket,
-                'slots': slots 
-            }
-
-            return render(request, 'entry.html', context)
+            except Exception as ex:
+                message =  f'there is an exception: {ex}'
+                return HttpResponse( content=message, status=401 )
+                
 
         else:
-            return HttpResponse('form is not valid.')
-
-    else:
-        
-
-        return render(request, 'entry.html', context)
+            message = 'form is not valid'
+            return HttpResponse(content=message, status=400)
 
 
-@csrf_exempt
-def exit(request):
-    if request.method == "POST":
+def exit(request, area):
+    parking_area = list_parking_areas[area]
+    
+    if request.method == 'POST':
+        exit_form = ExitForm(request.POST)
 
-        ticket_number = TicketNumber(request.POST)
+        if exit_form.is_valid():
+            token = request.POST['token']
 
-        if ticket_number.is_valid():
+            try:
+                exit_ticket = parking_area.exit(token)
 
-            parking = parking_system()
-            ticket = parking.exit(request.POST['ticket_number'])
+                context = {
+                    'ticket': exit_ticket
+                }
 
-            return HttpResponse(f'total to pay: {ticket.price}')
+                return render(request, 'exit.html', context, status=202)
 
+            except Exception as ex:
+                return HttpResponse(content=f'there is an exception: {ex}', status=401)
+
+        else:
+            return HttpResponse(content="form is not valid", status=400)
