@@ -86,7 +86,7 @@ class SlotClassTestCase(TestCase):
         Slot.objects.filter(size=3).update(status=True)
 
 
-        with self.assertRaises(IndexError):
+        with self.assertRaises(ValueError):
             # assert a raise when try to select where all slots is disable
             slot_unavailable = self.slots.get_a_free_slot(3)
         

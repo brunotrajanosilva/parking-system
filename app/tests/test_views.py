@@ -6,21 +6,30 @@ from ..views import index, entry, exit
 
 from datetime import datetime
 
+
 class ViewsClassTestCase(TestCase):
     def setUp(self):
         parking_area = ParkingArea.objects.create(name="test")
         Slot.objects.create(size=0, parking_area=parking_area)
 
-        self.url = reverse('index', kwargs={'area': 'area-a'})
+        # self.url = reverse('index', kwargs={'area': 'area-a'})
         self.kwargs = {'area': 'area-a'}
 
 
     def test_index(self):
-        url = reverse('index', kwargs=self.kwargs)
+        url = reverse('index')
         response = Client().get(url)
         
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'index.html')
+
+
+    def test_area(self):
+        url = reverse('area', kwargs=self.kwargs)
+        response = Client().get(url)
+        
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'area.html')
 
 
     def test_entry(self):

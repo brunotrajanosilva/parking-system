@@ -5,8 +5,12 @@ class Slots:
 
 
     def get_a_free_slot(self, slot_size):
-        free_slot = self.slots_db.filter(status=False, size__gte=slot_size).order_by('size')[0]
-        return free_slot
+        try:
+            free_slot = self.slots_db.filter(status=False, size__gte=slot_size).order_by('size')[0]
+            return free_slot
+        
+        except Exception as err:
+            raise ValueError('cannot find a slot for you')
 
     def set_slot_available(self, slot):
         slot.status = False

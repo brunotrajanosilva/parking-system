@@ -2,7 +2,6 @@ from django.db import models
 import uuid
 
 
-# Create your models here.
 
 car_choices = (
     (0, 'SM'),
@@ -38,16 +37,3 @@ class Ticket(models.Model):
     def __str__(self):
         return f'token:{self.token}, slot_size:{self.slot_size}, entry_time:{self.entry_time}, exit_time:{self.exit_time}, total:{self.total_price}'
 
-    """ def save(self):
-        if self.exit_time == None:
-            slot_size = self.slot_size
-            slot_size.status = True
-            slot_size.save()
-
-        else:
-            slot_size = self.slot_size
-            slot_size.status = False
-            slot_size.save()
-
-        super().save()
-    """

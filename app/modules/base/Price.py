@@ -14,7 +14,7 @@ class Price:
 
     def get_minutes_parked(self, entry, exit):
         diff = exit - entry
-        diff_minutes = diff.seconds / 60
+        diff_minutes = diff.total_seconds() / 60
         diff_minutes = math.floor(diff_minutes)
 
         return diff_minutes

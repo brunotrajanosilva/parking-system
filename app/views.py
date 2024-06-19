@@ -5,10 +5,26 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from .forms import EntryForm, ExitForm
 
+from django.views.decorators.csrf import csrf_exempt
 
 
-def index(request, area):
+@csrf_exempt
+def index(request):
     parking_urls = list_parking_areas.keys()
+    # parking_area = list_parking_areas[area]
+    # slots_status = parking_area.get_slots()
+
+
+
+    context = {
+        'urls': parking_urls,
+    }
+
+    return render(request, 'index.html', context)
+
+
+@csrf_exempt
+def area(request, area):
     parking_area = list_parking_areas[area]
     slots_status = parking_area.get_slots()
 
@@ -16,13 +32,13 @@ def index(request, area):
     context = {
         'entry': EntryForm(),
         'exit': ExitForm(),
-        'urls': parking_urls,
         'slots': slots_status
     }
 
-    return render(request, 'index.html', context)
+    return render(request, 'area.html', context)
 
 
+@csrf_exempt
 def entry(request, area):
     parking_area = list_parking_areas[area]
  
@@ -50,6 +66,9 @@ def entry(request, area):
             return HttpResponse(content=message, status=400)
 
 
+
+
+@csrf_exempt
 def exit(request, area):
     parking_area = list_parking_areas[area]
     
@@ -73,3 +92,10 @@ def exit(request, area):
 
         else:
             return HttpResponse(content="form is not valid", status=400)
+
+    
+    if request.method == "GET":
+        context = {'exit': ExitForm()}
+
+
+        return render(request, 'exit.html', context)
